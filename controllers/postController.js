@@ -1,5 +1,6 @@
 import Post from "../models/Post.js";
 import User from "../models/User.js";
+import mongoose from "mongoose";
 
 // @desc    Create a post
 // @route   POST /api/posts
@@ -146,6 +147,40 @@ export const deletePost = async (req, res) => {
       success: false,
       message: "Server error",
       error: error.message
+    });
+  }
+};
+
+
+export const getPostById = async (req, res) => {
+  const postId = req.params.id;
+
+  if (!mongoose.Types.ObjectId.isValid(postId)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid post ID",
+    });
+  }
+
+  try {
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        message: "Post not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      post,
+    });
+  } catch (error) {
+    console.error("Error fetching post:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message,
     });
   }
 };

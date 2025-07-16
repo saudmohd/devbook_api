@@ -7,37 +7,50 @@ import generateToken from "../utils/generateToken.js";
 export const registerUser = async (req, res) => {
   const { username, email, password } = req.body;
 
+  // Basic validation
   if (!username || !email || !password) {
     return res.status(400).json({
       success: false,
-      message: "Please fill all fields",
+      message: 'Please provide all required fields'
     });
   }
 
   try {
+    // Check if user exists
     const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).json({
         success: false,
-        message: "User already exists",
+        message: 'User already exists'
       });
     }
 
-    const user = await User.create({ username, email, password });
+    // Create new user
+    const user = await User.create({
+      username,
+      email,
+      password
+    });
+
+    // Generate token
+    const token = generateToken(user._id);
 
     res.status(201).json({
       success: true,
-      _id: user._id,
-      username: user.username,
-      email: user.email,
-      role: user.role,
-      token: generateToken(user._id),
+      token,
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role
+      }
     });
   } catch (error) {
+    console.error('Registration error:', error);
     res.status(500).json({
       success: false,
-      message: "Server error",
-      error: error.message,
+      message: 'Registration failed',
+      error: error.message
     });
   }
 };
@@ -49,7 +62,7 @@ export const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).select("+password");
     
     if (!user) {
       return res.status(401).json({

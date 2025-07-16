@@ -5,7 +5,7 @@ import errorHandler from './middleware/errorHandler.js';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import helmet from 'helmet';
-import xss from 'xss-clean';
+// import xss from 'xss-clean';
 import rateLimit from 'express-rate-limit';
 import cors from 'cors';
 
@@ -27,7 +27,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); 
 app.use(helmet());
-app.use(xss());
+// app.use(xss());
 app.use(rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100 // limit each IP to 100 requests per windowMs
